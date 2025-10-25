@@ -101,7 +101,7 @@ const SurveyResponse: React.FC = () => {
           ))}
 
           <div style={styles.actions}>
-            <button type="submit" disabled={isSubmitting}>
+            <button type="submit" disabled={isSubmitting} style={styles.actionsButton}>
               {isSubmitting ? '제출 중...' : '제출하기'}
             </button>
           </div>
@@ -172,7 +172,7 @@ const styles: any = {
     textAlign: 'center',
     marginTop: '2rem',
   },
-  actions button: {
+  actionsButton: {
     padding: '0.75rem 2rem',
     backgroundColor: '#007bff',
     color: 'white',
@@ -182,5 +182,6 @@ const styles: any = {
     cursor: 'pointer',
   },
 };
+
 
 export default SurveyResponse;

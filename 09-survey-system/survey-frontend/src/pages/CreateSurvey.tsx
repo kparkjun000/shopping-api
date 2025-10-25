@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { surveyAPI } from '../services/api';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { surveyAPI } from "../services/api";
 
 const CreateSurvey: React.FC = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [questions, setQuestions] = useState<Array<{ text: string; type: string }>>([
-    { text: '', type: 'MULTIPLE_CHOICE' }
-  ]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [questions, setQuestions] = useState<
+    Array<{ text: string; type: string }>
+  >([{ text: "", type: "MULTIPLE_CHOICE" }]);
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const addQuestion = () => {
-    setQuestions([...questions, { text: '', type: 'MULTIPLE_CHOICE' }]);
+    setQuestions([...questions, { text: "", type: "MULTIPLE_CHOICE" }]);
   };
 
   const removeQuestion = (index: number) => {
@@ -34,18 +34,18 @@ const CreateSurvey: React.FC = () => {
       const surveyData = {
         title,
         description,
-        questions: questions.map(q => ({
+        questions: questions.map((q) => ({
           text: q.text,
           questionType: q.type,
-          options: q.type === 'MULTIPLE_CHOICE' ? ['옵션 1', '옵션 2'] : []
-        }))
+          options: q.type === "MULTIPLE_CHOICE" ? ["옵션 1", "옵션 2"] : [],
+        })),
       };
 
       await surveyAPI.create(surveyData);
-      navigate('/surveys');
+      navigate("/surveys");
     } catch (error) {
-      console.error('Failed to create survey:', error);
-      alert('설문 생성에 실패했습니다.');
+      console.error("Failed to create survey:", error);
+      alert("설문 생성에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +55,7 @@ const CreateSurvey: React.FC = () => {
     <div style={styles.container}>
       <header style={styles.header}>
         <h2>새 설문 만들기</h2>
-        <button onClick={() => navigate('/surveys')} style={styles.backBtn}>
+        <button onClick={() => navigate("/surveys")} style={styles.backBtn}>
           목록으로
         </button>
       </header>
@@ -105,14 +105,18 @@ const CreateSurvey: React.FC = () => {
                 <input
                   type="text"
                   value={question.text}
-                  onChange={(e) => updateQuestion(index, 'text', e.target.value)}
+                  onChange={(e) =>
+                    updateQuestion(index, "text", e.target.value)
+                  }
                   placeholder="질문을 입력하세요"
                   style={styles.input}
                   required
                 />
                 <select
                   value={question.type}
-                  onChange={(e) => updateQuestion(index, 'type', e.target.value)}
+                  onChange={(e) =>
+                    updateQuestion(index, "type", e.target.value)
+                  }
                   style={styles.select}
                 >
                   <option value="MULTIPLE_CHOICE">객관식</option>
@@ -123,11 +127,11 @@ const CreateSurvey: React.FC = () => {
           </div>
 
           <div style={styles.actions}>
-            <button type="button" onClick={() => navigate('/surveys')}>
+            <button type="button" onClick={() => navigate("/surveys")} style={styles.actionsButton}>
               취소
             </button>
-            <button type="submit" disabled={isLoading}>
-              {isLoading ? '생성 중...' : '설문 만들기'}
+            <button type="submit" disabled={isLoading} style={styles.actionsButton}>
+              {isLoading ? "생성 중..." : "설문 만들기"}
             </button>
           </div>
         </form>
@@ -138,98 +142,98 @@ const CreateSurvey: React.FC = () => {
 
 const styles: any = {
   container: {
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
+    minHeight: "100vh",
+    backgroundColor: "#f5f5f5",
   },
   header: {
-    backgroundColor: 'white',
-    padding: '1rem 2rem',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    backgroundColor: "white",
+    padding: "1rem 2rem",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   backBtn: {
-    padding: '0.5rem 1rem',
-    backgroundColor: '#6c757d',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
+    padding: "0.5rem 1rem",
+    backgroundColor: "#6c757d",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
   },
   main: {
-    maxWidth: '800px',
-    margin: '2rem auto',
-    padding: '0 2rem',
+    maxWidth: "800px",
+    margin: "2rem auto",
+    padding: "0 2rem",
   },
   formGroup: {
-    marginBottom: '1.5rem',
+    marginBottom: "1.5rem",
   },
   input: {
-    width: '100%',
-    padding: '0.75rem',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '1rem',
-    boxSizing: 'border-box',
+    width: "100%",
+    padding: "0.75rem",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    fontSize: "1rem",
+    boxSizing: "border-box",
   },
   textarea: {
-    width: '100%',
-    padding: '0.75rem',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '1rem',
-    minHeight: '100px',
-    resize: 'vertical',
-    boxSizing: 'border-box',
+    width: "100%",
+    padding: "0.75rem",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    fontSize: "1rem",
+    minHeight: "100px",
+    resize: "vertical",
+    boxSizing: "border-box",
   },
   questionsSection: {
-    marginTop: '2rem',
+    marginTop: "2rem",
   },
   questionsHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '1rem',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "1rem",
   },
   addBtn: {
-    padding: '0.5rem 1rem',
-    backgroundColor: '#28a745',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
+    padding: "0.5rem 1rem",
+    backgroundColor: "#28a745",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
   },
   questionCard: {
-    backgroundColor: 'white',
-    padding: '1rem',
-    borderRadius: '8px',
-    marginBottom: '1rem',
+    backgroundColor: "white",
+    padding: "1rem",
+    borderRadius: "8px",
+    marginBottom: "1rem",
   },
   questionHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '0.5rem',
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: "0.5rem",
   },
   select: {
-    width: '100%',
-    padding: '0.5rem',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    marginTop: '0.5rem',
+    width: "100%",
+    padding: "0.5rem",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    marginTop: "0.5rem",
   },
   actions: {
-    display: 'flex',
-    gap: '1rem',
-    justifyContent: 'flex-end',
-    marginTop: '2rem',
+    display: "flex",
+    gap: "1rem",
+    justifyContent: "flex-end",
+    marginTop: "2rem",
   },
-  actions button: {
-    padding: '0.75rem 1.5rem',
-    borderRadius: '4px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '1rem',
+  actionsButton: {
+    padding: "0.75rem 1.5rem",
+    borderRadius: "4px",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "1rem",
   },
 };
 

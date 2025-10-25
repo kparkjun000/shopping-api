@@ -22,7 +22,8 @@ public class CorsConfig {
             "http://localhost:5173",
             "http://localhost:5174",
             "http://127.0.0.1:3000",
-            "http://127.0.0.1:5173"
+            "http://127.0.0.1:5173",
+            "https://*.vercel.app"
         ));
         
         // 허용할 HTTP 메서드
