@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener - 링크 단축 서비스</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-link"></i>
+                <h1>URL Shortener</h1>
+            </div>
+            <p class="subtitle">긴 URL을 짧고 간편하게 만들어보세요</p>
+        </header>
+
+        <!-- URL Creation Form -->
+        <section class="url-form-section">
+            <div class="card">
+                <h2><i class="fas fa-plus-circle"></i> 새 단축 URL 만들기</h2>
+                <form id="createUrlForm">
+                    <div class="form-group">
+                        <label for="originalUrl">원본 URL <span class="required">*</span></label>
+                        <input 
+                            type="url" 
+                            id="originalUrl" 
+                            name="originalUrl" 
+                            placeholder="https://example.com/very/long/url/path" 
+                            required
+                        >
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customAlias">커스텀 별칭 (선택)</label>
+                            <input 
+                                type="text" 
+                                id="customAlias" 
+                                name="customAlias" 
+                                placeholder="my-custom-link"
+                                pattern="[a-zA-Z0-9-_]+"
+                                title="영문, 숫자, 하이픈(-), 언더스코어(_)만 사용 가능합니다"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expirationDate">만료일 (선택)</label>
+                            <input 
+                                type="date" 
+                                id="expirationDate" 
+                                name="expirationDate"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title">제목 (선택)</label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            name="title" 
+                            placeholder="내 링크 제목"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">설명 (선택)</label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            rows="3"
+                            placeholder="링크에 대한 간단한 설명을 입력하세요"
+                        ></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> URL 단축하기
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Result Section -->
+        <section id="resultSection" class="result-section" style="display: none;">
+            <div class="card result-card">
+                <h2><i class="fas fa-check-circle"></i> URL이 생성되었습니다!</h2>
+                <div class="result-content">
+                    <div class="url-display">
+                        <input type="text" id="shortUrlDisplay" readonly>
+                        <button class="btn btn-copy" onclick="copyShortUrl()">
+                            <i class="fas fa-copy"></i> 복사
+                        </button>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button class="btn btn-secondary" onclick="showQRCode()">
+                            <i class="fas fa-qrcode"></i> QR 코드 보기
+                        </button>
+                        <a id="visitShortUrl" href="#" target="_blank" class="btn btn-link">
+                            <i class="fas fa-external-link-alt"></i> 방문하기
+                        </a>
+                        <button class="btn btn-analytics" onclick="showAnalytics(currentShortCode)">
+                            <i class="fas fa-chart-line"></i> 통계 보기
+                        </button>
+                    </div>
+
+                    <div id="qrCodeContainer" class="qr-code-container" style="display: none;">
+                        <img id="qrCodeImage" src="" alt="QR Code">
+                        <button class="btn btn-download" onclick="downloadQRCode()">
+                            <i class="fas fa-download"></i> QR 코드 다운로드
+                        </button>
+                    </div>
+
+                    <div class="url-info">
+                        <div class="info-item">
+                            <span class="info-label">원본 URL:</span>
+                            <span id="originalUrlDisplay" class="info-value"></span>
+                        </div>
+                        <div class="info-item" id="titleDisplay" style="display: none;">
+                            <span class="info-label">제목:</span>
+                            <span class="info-value"></span>
+                        </div>
+                        <div class="info-item" id="descriptionDisplay" style="display: none;">
+                            <span class="info-label">설명:</span>
+                            <span class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">생성일:</span>
+                            <span id="createdAtDisplay" class="info-value"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- URL List Section -->
+        <section class="url-list-section">
+            <div class="card">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> 생성된 단축 URL 목록</h2>
+                    <button class="btn btn-refresh" onclick="loadAllUrls()">
+                        <i class="fas fa-sync-alt"></i> 새로고침
+                    </button>
+                </div>
+                
+                <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i> 로딩 중...
+                </div>
+
+                <div id="urlList" class="url-list">
+                    <!-- URL items will be inserted here -->
+                </div>
+
+                <div id="emptyState" class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>아직 생성된 URL이 없습니다</p>
+                    <p class="empty-state-subtitle">위 양식을 사용하여 첫 번째 단축 URL을 만들어보세요!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Modal -->
+        <div id="analyticsModal" class="modal">
+            <div class="modal-content analytics-modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-chart-bar"></i> 통계 분석</h3>
+                    <button class="btn-close" onclick="closeAnalyticsModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div id="analyticsContent" class="analytics-content">
+                    <!-- Loading State -->
+                    <div id="analyticsLoading" class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i> 통계 데이터를 불러오는 중...
+                    </div>
+
+                    <!-- Analytics Data -->
+                    <div id="analyticsData" style="display: none;">
+                        <!-- Summary Cards -->
+                        <div class="stats-summary">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-mouse-pointer"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <p class="stat-label">총 클릭 수</p>
+                                    <p class="stat-value" id="totalClicks">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <p class="stat-label">오늘</p>
+                                    <p class="stat-value" id="todayClicks">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-calendar-week"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <p class="stat-label">이번 주</p>
+                                    <p class="stat-value" id="weekClicks">0</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <p class="stat-label">이번 달</p>
+                                    <p class="stat-value" id="monthClicks">0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Chart -->
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h4>클릭 추세</h4>
+                                <div class="chart-controls">
+                                    <button class="btn-chart-option active" onclick="updateTimelineChart('daily', 30)">30일</button>
+                                    <button class="btn-chart-option" onclick="updateTimelineChart('daily', 7)">7일</button>
+                                    <button class="btn-chart-option" onclick="updateTimelineChart('hourly', 1)">24시간</button>
+                                </div>
+                            </div>
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+
+                        <!-- Device, Browser, OS Charts -->
+                        <div class="chart-grid">
+                            <div class="chart-container">
+                                <h4>디바이스</h4>
+                                <canvas id="deviceChart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h4>브라우저</h4>
+                                <canvas id="browserChart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h4>운영체제</h4>
+                                <canvas id="osChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Location Stats -->
+                        <div class="location-stats">
+                            <h4>국가별 통계</h4>
+                            <div id="locationList" class="location-list">
+                                <!-- Location items will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast"></div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content">
+                <h3><i class="fas fa-exclamation-triangle"></i> URL 삭제</h3>
+                <p>정말로 이 URL을 삭제하시겠습니까?</p>
+                <p class="modal-subtitle">이 작업은 되돌릴 수 없습니다.</p>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeDeleteModal()">취소</button>
+                    <button class="btn btn-danger" onclick="confirmDelete()">삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 URL Shortener. All rights reserved.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
